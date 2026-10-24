@@ -1,6 +1,6 @@
 # Ciberqueso 🧀⚡
 
-Proyecto de videojuego desarrollado para la carrera/materia de **TIC - Universidad Nacional de Hurlingham (UNAHUR) - 2026**.
+Proyecto de videojuego desarrollado para la **TIC - Universidad Nacional de Hurlingham (UNAHUR) - 2026**.
 
 ---
 
@@ -45,12 +45,12 @@ Proyecto de videojuego desarrollado para la carrera/materia de **TIC - Universid
   * Puntaje actual acumulado.
   * Indicador de nivel/fase en curso.
 * **Menú de Pausa:**
-  * *Reanudar / Return:* Vuelve a la partida en curso.
+  * *Reanudar :* Vuelve a la partida en curso.
   * *Menú Principal:* Abandona la partida y regresa al inicio.
 
 ### 4. Pantalla de Terminación (Game Over / Victoria)
 * Puntuación obtenida en la partida.
-* Récord histórico (Puntaje Máximo / High Score).
+* Récord histórico (Puntaje Máximo).
 * Botón **Volver a jugar** (reinicia con la misma dificultad).
 * Botón **Menú Principal**.
 
