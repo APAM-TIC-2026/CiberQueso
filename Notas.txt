@@ -1,0 +1,61 @@
+Raton queso
+
+queso movil power up
+
+gato
+
+
+laberinto 
+
+multiples gatos
+
+queso se mueve
+
+ratonera 
+
+solo movimientos laterales y verrticales
+
+
+
+
+1- intro
+	muestre nombre
+	integrantes
+	unahur tic 2026
+	
+2- pantalla principal 
+	controles
+	high score
+	play
+		nivel de dificiultad
+			Facil	3 vidas
+			normal	2 vidas
+			dificil	1 vida
+	
+	
+3- Juego
+	pausa
+		return
+		menu principal
+	puntaje
+	vidas
+	niveles*
+	
+4- terminacion
+	puntaje
+	puntaje maximo
+	volver a jugar
+	menu principal
+
+
+*niveles	(crear niveles intermedios que )
+	solo  queso
+		queso movil (power up)(cuando esta el gato)
+	laberinto
+	gato ruta predefinida
+	gato laberinto
+		ruta predefinida
+		sigue al raton
+			superqueso (puede matar al gato con tocarlo durante tiempo limitado)
+ 			gato trampas (puede dejar trampas con duracion limitada que si toca el raton pierde una vida)
+	

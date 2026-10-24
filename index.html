@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UNAHUR TIC - HACKATON PIA</title>
+    <!-- Librería p5.js y p5.sound -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg-color: #0b0f19;
+        --text-color: #00ffcc;
+        --border-color: #00ffcc55;
+        --panel-bg: rgba(0, 0, 0, 0.6);
+        --btn-bg: #111b2b;
+        --btn-hover: #00ffcc;
+        --btn-text-hover: #0b0f19;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: "Courier New", Courier, monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .terminal-box {
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        max-width: 620px;
+        width: 90%;
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.12);
+        background: var(--panel-bg);
+        text-align: center;
+        position: relative;
+      }
+
+      .header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed var(--border-color);
+        padding-bottom: 0.6rem;
+        margin-bottom: 1rem;
+      }
+
+      .header-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      h1 {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 0;
+      }
+
+      p {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+      }
+
+      #game-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+
+      .btn-action {
+        background: var(--btn-bg);
+        color: var(--text-color);
+        border: 1px solid var(--text-color);
+        padding: 0.4rem 0.8rem;
+        font-family: inherit;
+        font-size: 0.75rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        font-weight: bold;
+        transition: all 0.2s ease;
+      }
+
+      .btn-action:hover {
+        background: var(--btn-hover);
+        color: var(--btn-text-hover);
+        box-shadow: 0 0 10px var(--text-color);
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(11, 15, 25, 0.85);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: #0b0f19;
+        border: 1px solid var(--text-color);
+        padding: 1.5rem;
+        max-width: 520px;
+        width: 85%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+        text-align: left;
+      }
+
+      .modal-content h2 {
+        font-size: 1rem;
+        margin-top: 0;
+        border-bottom: 1px dashed var(--border-color);
+        padding-bottom: 0.5rem;
+      }
+
+      .modal-content ul {
+        padding-left: 1.2rem;
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .modal-content li {
+        margin-bottom: 0.4rem;
+      }
+
+      .modal-footer {
+        margin-top: 1.2rem;
+        text-align: right;
+      }
+    </style>
+    <link rel="icon" href="data:image/png;base64,TU_CADENA_BASE64" type="image/png">
+  </head>
+  <body>
+    <div class="terminal-box">
+      <div class="header-bar">
+        <h1>EMOSIDO ENGAÑADOS</h1>
+        <div class="header-buttons">
+          <button class="btn-action" id="btn-sound" onclick="toggleAudio()">
+            🔊 Audio: ON
+          </button>
+          <button class="btn-action" onclick="toggleModal(true)">
+            Ok... ¿Qué hago?
+          </button>
+        </div>
+      </div>
+      <p>
+        > Usá las flechas del teclado para guiar al michi y atrapar el láser.
+      </p>
+      <div id="game-container"></div>
+    </div>
+
+    <!-- Modal de Instrucciones -->
+    <div class="modal-overlay" id="instructions-modal">
+      <div class="modal-content">
+        <h2>>¡BIENVENIDOS A LA HACKATÓN!</h2>
+        <p>
+          <strong>
+            > Su misión es, partiendo de este juego básico... ¡convertirlo en el
+            juego que quieran!</strong
+          ><br />
+        </p>
+        <p>
+          La buena noticia es que no necesitan saber nada previamente, porque
+          van a poner a trabajar a la IA (cualquier LLM de su preferencia, GPT,
+          Claude, DeepSeek, Gemini, etc, no hace falta que sea solo uno).
+          Ustedes toman el rol de "directores del proyecto".
+        </p>
+        <p>
+          Les dejamos acá abajo data y algunas pautas mínimas a
+          cumplir/respetar, solo para limitarnos teniendo en cuenta la duración
+          de esta actividad (unas 3 horas aproximadamente).
+        </p>
+        <br />
+        <p>
+          <strong>1. FORMATO:</strong><br />
+          Equipos de entre, sugerimos, 2 a 5 integrantes.
+        </p>
+
+        <p><strong>2. EL JUEGO DEBERÍA CONTAR MÍNIMAMENTE CON:</strong></p>
+        <ul>
+          <li>
+            <strong>Pantalla y Menú Principal:</strong> Título, fondo y opciones
+            (Comenzar, Opciones, Salir).
+          </li>
+          <li>
+            <strong>Instrucciones claras:</strong> Objetivos visibles en el menú
+            u opciones.
+          </li>
+          <li>
+            <strong>Dificultad/Escenarios:</strong> Al menos 2 niveles o
+            progresión de dificultad.
+          </li>
+          <li>
+            <strong>Audio:</strong> Efectos de sonido (SFX) y/o música de fondo.
+          </li>
+          <li>
+            <strong>Métrica obligatoria:</strong> El juego debe llevar un
+            <u>conteo de prompts/iteraciones</u> que se hicieron hasta el
+            momento (esto servirá en caso de empates)
+          </li>
+        </ul>
+
+        <p><strong>3. PUNTAJE Y GANADORES/AS </strong></p>
+        <p>
+          Cada implementación supone un logro alcanzado por el equipo y la suma
+          de un puntaje:
+        </p>
+        <ul>
+          <li>
+            <strong>Logro "Bienvenidos" (+75 pts):</strong> El juego incluye una
+            pantalla principal visualmente copada, con el título del juego (25
+            pts) y un menú de opciones interactivo (50 pts)
+          </li>
+          <li>
+            <strong>Logro "Manual de supervivencia" (+100 pts):</strong> El
+            juego incluye una sección clara y fácilmente visible que le explique
+            al jugador cómo jugar y cuál es el objetivo
+          </li>
+          <li>
+            <strong>Logro "Too easy for me" (+150 pts):</strong> El juego
+            incluye al menos 2 niveles de dificultad o escenarios diferentes
+          </li>
+          <li>
+            <strong
+              >Logro "Hable más fuerte que tengo una toalla" (+125 pts):</strong
+            >
+            El juego incluye sonidos, sean fx (+50 pts) o música (+75 pts).
+          </li>
+          <li>
+            <strong>Logro "Auditoría severa" (+100 pts):</strong> El juego
+            incluye contador de prompts/iteraciones que se requirieron para
+            programarlo
+          </li>
+          <li>
+            <strong>Logro "Democracia, aún te tengo fe" (+200 pts):</strong> El
+            juego es el más votado por los participantes del hackaton (hacia el
+            final hacemos votación)
+          </li>
+        </ul>
+        <p><strong>4. LÍMITES DE P5.JS (no pretendan implementar):</strong></p>
+        <ul>
+          <li>Gráficos 3D complejos o motores físicos avanzados.</li>
+          <li>
+            Multijugador online o interfaces web pesadas dentro del canvas.
+          </li>
+        </ul>
+        <p><strong> 5. REGLA DE ORO IRROMPIBLE: ¡DIVERTIRSE!</strong></p>
+
+        <div class="modal-footer">
+          <button class="btn-action" onclick="toggleModal(false)">
+            Entendido / Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function toggleModal(show) {
+        const modal = document.getElementById("instructions-modal");
+        modal.style.display = show ? "flex" : "none";
+      }
+
+      // Control global de Audio On/Off para el maullido nativo
+      let soundMuted = false;
+      function toggleAudio() {
+        soundMuted = !soundMuted;
+        const btn = document.getElementById("btn-sound");
+        if (soundMuted) {
+          btn.innerText = "🔇 Audio: OFF";
+          if (typeof soundCat !== "undefined" && soundCat) {
+            soundCat.muted = true;
+          }
+        } else {
+          btn.innerText = "🔊 Audio: ON";
+          if (typeof soundCat !== "undefined" && soundCat) {
+            soundCat.muted = false;
+          }
+        }
+      }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
+    <script src="assets.js"></script>
+    <script src="sprites.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>
