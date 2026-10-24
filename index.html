@@ -87,13 +87,6 @@
         box-shadow: 0 0 8px var(--text-color);
       }
 
-      .prompt-badge {
-        font-size: 0.75rem;
-        border: 1px dashed var(--border-color);
-        padding: 0.35rem 0.6rem;
-        color: #ffcc00;
-      }
-
       .modal-overlay {
         display: none;
         position: fixed;
@@ -140,8 +133,6 @@
       <div class="header-bar">
         <h1>CIBERQUESO // UNAHUR 2026</h1>
         <div class="header-buttons">
-          <span class="prompt-badge" id="prompt-ui">Prompts: 1</span>
-          <button class="btn-action" onclick="addPrompt()">+ Prompt</button>
           <button class="btn-action" id="btn-sound" onclick="toggleAudio()">Audio: ON</button>
           <button class="btn-action" onclick="toggleModal(true)">Manual</button>
         </div>
@@ -169,14 +160,6 @@
 
     <script>
       let soundMuted = false;
-      let promptCount = parseInt(localStorage.getItem("ciberqueso_prompts") || "1");
-      document.getElementById("prompt-ui").innerText = "Prompts: " + promptCount;
-
-      function addPrompt() {
-        promptCount++;
-        localStorage.setItem("ciberqueso_prompts", promptCount);
-        document.getElementById("prompt-ui").innerText = "Prompts: " + promptCount;
-      }
 
       function toggleModal(show) {
         document.getElementById("instructions-modal").style.display = show ? "flex" : "none";

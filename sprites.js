@@ -1,12 +1,41 @@
 let imgClosed, imgOpen, soundCat;
+let bgIntro, bgGame;
 
 function preload() {
   imgClosed = loadImage(BOCA_CERRADA_B64);
   imgOpen = loadImage(BOCA_ABIERTA_B64);
   soundCat = new Audio(MAULLIDO_B64);
+
+  if (typeof BG_INTRO_B64 !== "undefined" && BG_INTRO_B64.length > 30) {
+    bgIntro = loadImage(BG_INTRO_B64);
+  }
+  if (typeof BG_GAME_B64 !== "undefined" && BG_GAME_B64.length > 30) {
+    bgGame = loadImage(BG_GAME_B64);
+  }
 }
 
-// Dibujar Gato Enemigo (basado en assets originales ajustado al laberinto)
+function drawIntroBackground() {
+  if (bgIntro && bgIntro.width > 1) {
+    image(bgIntro, 0, 0, width, height);
+    noStroke();
+    fill(11, 15, 25, 165);
+    rect(0, 0, width, height);
+  } else {
+    drawBackgroundGrid();
+  }
+}
+
+function drawGameBackground() {
+  if (bgGame && bgGame.width > 1) {
+    image(bgGame, 0, 40, width, height - 40);
+    noStroke();
+    fill(11, 15, 25, 115);
+    rect(0, 40, width, height - 40);
+  } else {
+    drawBackgroundGrid();
+  }
+}
+
 function drawCatSprite(x, y, size, isMoving, facingRight, mode) {
   push();
   translate(x, y);
@@ -16,7 +45,6 @@ function drawCatSprite(x, y, size, isMoving, facingRight, mode) {
     translate(-size, 0);
   }
 
-  // Tinte según el comportamiento del gato
   if (mode === "chase") tint(255, 120, 120);
   else if (mode === "trapper") tint(220, 120, 255);
   else noTint();
@@ -31,7 +59,6 @@ function drawCatSprite(x, y, size, isMoving, facingRight, mode) {
   pop();
 }
 
-// Dibujar Ciber-Ratón (Jugador)
 function drawMouseSprite(x, y, size, dir, superActive, speedActive) {
   push();
   translate(x + size / 2, y + size / 2);
@@ -51,23 +78,19 @@ function drawMouseSprite(x, y, size, dir, superActive, speedActive) {
     ellipse(0, 0, size * 1.25, size * 1.25);
   }
 
-  // Cola
   stroke("#ff66aa");
   strokeWeight(2);
   noFill();
   line(-size * 0.35, 0, -size * 0.6, sin(frameCount * 0.3) * 3);
 
-  // Cuerpo
   noStroke();
   fill(superActive ? "#00ffcc" : "#b0bec5");
   ellipse(0, 0, size * 0.75, size * 0.55);
 
-  // Orejas
   fill("#78909c");
   ellipse(-2, -size * 0.25, size * 0.28, size * 0.28);
   ellipse(-2, size * 0.25, size * 0.28, size * 0.28);
 
-  // Ojos y nariz
   fill("#ff0055");
   ellipse(size * 0.35, 0, 4, 4);
   fill("#00ffcc");
@@ -77,7 +100,6 @@ function drawMouseSprite(x, y, size, dir, superActive, speedActive) {
   pop();
 }
 
-// Dibujar Quesos (Normal, Móvil Power-up, Superqueso)
 function drawCheeseSprite(x, y, size, type) {
   push();
   translate(x, y);
@@ -102,7 +124,6 @@ function drawCheeseSprite(x, y, size, type) {
   pop();
 }
 
-// Dibujar Ratonera (Trampa con duración limitada)
 function drawTrapSprite(x, y, size, ttl, maxTtl) {
   push();
   translate(x, y);

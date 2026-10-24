@@ -18,7 +18,7 @@ let traps = [];
 
 let osc, env, bgmOsc;
 let bgmStep = 0;
-const bgmNotes = [130.81, 146.83, 164.81, 196.00, 164.81, 146.83];
+const bgmNotes = [130.81, 146.83, 164.81, 196.0, 164.81, 146.83];
 
 function setup() {
   let canvas = createCanvas(560, 360);
@@ -61,26 +61,36 @@ function updateBGM() {
 
 function draw() {
   background(11, 15, 25);
-  drawBackgroundGrid();
   updateBGM();
+
+  if (gameState === "INTRO") {
+    drawIntroBackground();
+    drawIntro();
+  } else if (gameState === "MENU") {
+    drawIntroBackground();
+    drawMenu();
+  } else if (gameState === "CONTROLS") {
+    drawIntroBackground();
+    drawControls();
+  } else if (gameState === "DIFFICULTY") {
+    drawIntroBackground();
+    drawDifficulty();
+  } else if (gameState === "PLAY") {
+    drawGameBackground();
+    updateGame();
+    drawGame();
+  } else if (gameState === "PAUSE") {
+    drawGameBackground();
+    drawGame();
+    drawPause();
+  } else if (gameState === "GAMEOVER" || gameState === "VICTORY") {
+    drawIntroBackground();
+    drawEndScreen();
+  }
 
   stroke("#00ffcc55");
   noFill();
   rect(0, 0, width, height);
-
-  if (gameState === "INTRO") drawIntro();
-  else if (gameState === "MENU") drawMenu();
-  else if (gameState === "CONTROLS") drawControls();
-  else if (gameState === "DIFFICULTY") drawDifficulty();
-  else if (gameState === "PLAY") {
-    updateGame();
-    drawGame();
-  } else if (gameState === "PAUSE") {
-    drawGame();
-    drawPause();
-  } else if (gameState === "GAMEOVER" || gameState === "VICTORY") {
-    drawEndScreen();
-  }
 }
 
 // 1. PANTALLA INTRO
@@ -219,48 +229,87 @@ function setupLevel(lvl) {
     walls.push({ x: 200, y: HUD_H + 215, w: 160, h: 16 });
   }
 
-  // Configuración de Quesos y Power-ups por nivel
   let staticCount = 5 + lvl;
-  let mobileCount = (lvl === 2 || lvl === 4 || lvl >= 7) ? 2 : 0;
-  let superCount = (lvl === 6 || lvl === 8) ? 2 : 0;
+  let mobileCount = lvl === 2 || lvl === 4 || lvl >= 7 ? 2 : 0;
+  let superCount = lvl === 6 || lvl === 8 ? 2 : 0;
 
   for (let i = 0; i < staticCount; i++) spawnCheese("normal");
   for (let i = 0; i < mobileCount; i++) spawnCheese("mobile");
   for (let i = 0; i < superCount; i++) spawnCheese("super");
 
-  // Configuración de Gatos (Ruta fija, Perseguidor, Trampero, Múltiples)
+  // Rutas fijas despejadas de muros y movimiento ortogonal exacto
   if (lvl === 3 || lvl === 4) {
-    cats.push(createCat(480, HUD_H + 40, "patrol", [
-      { x: 480, y: HUD_H + 40 },
-      { x: 480, y: HUD_H + 260 },
-      { x: 200, y: HUD_H + 260 },
-      { x: 200, y: HUD_H + 40 }
-    ], 1.7));
+    cats.push(
+      createCat(
+        180,
+        HUD_H + 40,
+        "patrol",
+        [
+          { x: 180, y: HUD_H + 40 },
+          { x: 360, y: HUD_H + 40 },
+          { x: 360, y: HUD_H + 110 },
+          { x: 180, y: HUD_H + 110 },
+          { x: 180, y: HUD_H + 240 },
+          { x: 360, y: HUD_H + 240 },
+          { x: 360, y: HUD_H + 180 },
+          { x: 180, y: HUD_H + 180 }
+        ],
+        1.7
+      )
+    );
   } else if (lvl === 5) {
     cats.push(createCat(490, HUD_H + 250, "chase", [], 1.5));
   } else if (lvl === 6) {
     cats.push(createCat(490, HUD_H + 250, "chase", [], 1.65));
-    cats.push(createCat(490, HUD_H + 40, "patrol", [
-      { x: 490, y: HUD_H + 40 },
-      { x: 160, y: HUD_H + 40 },
-      { x: 160, y: HUD_H + 160 },
-      { x: 490, y: HUD_H + 160 }
-    ], 1.7));
+    cats.push(
+      createCat(
+        480,
+        HUD_H + 15,
+        "patrol",
+        [
+          { x: 480, y: HUD_H + 15 },
+          { x: 80, y: HUD_H + 15 },
+          { x: 80, y: HUD_H + 80 },
+          { x: 480, y: HUD_H + 80 }
+        ],
+        1.7
+      )
+    );
   } else if (lvl === 7) {
     cats.push(createCat(480, HUD_H + 150, "trapper", [], 1.65));
-    cats.push(createCat(280, HUD_H + 40, "patrol", [
-      { x: 150, y: HUD_H + 40 },
-      { x: 390, y: HUD_H + 40 },
-      { x: 390, y: HUD_H + 260 },
-      { x: 150, y: HUD_H + 260 }
-    ], 1.75));
+    cats.push(
+      createCat(
+        150,
+        HUD_H + 40,
+        "patrol",
+        [
+          { x: 150, y: HUD_H + 40 },
+          { x: 390, y: HUD_H + 40 },
+          { x: 390, y: HUD_H + 145 },
+          { x: 150, y: HUD_H + 145 },
+          { x: 150, y: HUD_H + 255 },
+          { x: 390, y: HUD_H + 255 },
+          { x: 390, y: HUD_H + 145 },
+          { x: 150, y: HUD_H + 145 }
+        ],
+        1.75
+      )
+    );
   } else if (lvl === 8) {
     cats.push(createCat(490, HUD_H + 40, "trapper", [], 1.8));
     cats.push(createCat(490, HUD_H + 260, "chase", [], 1.75));
-    cats.push(createCat(270, HUD_H + 150, "patrol", [
-      { x: 150, y: HUD_H + 150 },
-      { x: 390, y: HUD_H + 150 }
-    ], 2.0));
+    cats.push(
+      createCat(
+        150,
+        HUD_H + 145,
+        "patrol",
+        [
+          { x: 150, y: HUD_H + 145 },
+          { x: 390, y: HUD_H + 145 }
+        ],
+        2.0
+      )
+    );
   }
 }
 
@@ -333,9 +382,10 @@ function updateGame() {
   if (player.speedTimer > 0) player.speedTimer--;
   if (player.invulnTimer > 0) player.invulnTimer--;
 
-  // Movimiento estrictamente ortogonal (4 direcciones, sin diagonales)
+  // Movimiento ortogonal del jugador
   let currentSpeed = player.baseSpeed + (player.speedTimer > 0 ? 1.2 : 0);
-  let dx = 0, dy = 0;
+  let dx = 0,
+    dy = 0;
 
   if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
     dx = -currentSpeed;
@@ -357,7 +407,7 @@ function updateGame() {
     player.y += dy;
   }
 
-  // Actualizar Quesos Móviles (ortogonales)
+  // Actualizar Quesos Móviles
   for (let i = cheeses.length - 1; i >= 0; i--) {
     let c = cheeses[i];
     if (c.type === "mobile") {
@@ -377,25 +427,24 @@ function updateGame() {
       }
     }
 
-    // Colisión Ratón - Queso
     if (rectOverlap(player.x, player.y, player.size, player.size, c.x, c.y, c.size, c.size)) {
       if (c.type === "normal") {
         score += 10;
         playSfx(600, 850, 0.07);
       } else if (c.type === "mobile") {
         score += 25;
-        player.speedTimer = 240; // Power-up velocidad
+        player.speedTimer = 240;
         playSfx(700, 1100, 0.1);
       } else if (c.type === "super") {
         score += 50;
-        player.superTimer = 360; // 6 segundos Superqueso
+        player.superTimer = 360;
         playSfx(500, 1200, 0.15);
       }
       cheeses.splice(i, 1);
     }
   }
 
-  // Actualizar Ratoneras (Trampas)
+  // Actualizar Ratoneras
   for (let i = traps.length - 1; i >= 0; i--) {
     traps[i].ttl--;
     if (traps[i].ttl <= 0) {
@@ -413,55 +462,70 @@ function updateGame() {
     }
   }
 
-  // Actualizar Gatos
+  // Actualizar Gatos con verificación de colisión en rutas fijas y persecución
   for (let cat of cats) {
     if (cat.deadTimer > 0) {
       cat.deadTimer--;
       if (cat.deadTimer === 0) {
         cat.x = cat.spawnX;
         cat.y = cat.spawnY;
+        cat.wpIndex = 0;
       }
       continue;
     }
 
-    let targetX = player.x;
-    let targetY = player.y;
-
     if (cat.mode === "patrol" && cat.waypoints.length > 0) {
       let wp = cat.waypoints[cat.wpIndex];
-      targetX = wp.x;
-      targetY = wp.y;
-      if (dist(cat.x, cat.y, wp.x, wp.y) < 6) {
+      let diffX = wp.x - cat.x;
+      let diffY = wp.y - cat.y;
+      let moved = false;
+
+      if (abs(diffX) > 0) {
+        let stepX = constrain(diffX, -cat.speed, cat.speed);
+        if (canMoveTo(cat.x + stepX, cat.y, cat.size)) {
+          cat.x += stepX;
+          cat.facingRight = stepX < 0;
+          moved = true;
+        }
+      } else if (abs(diffY) > 0) {
+        let stepY = constrain(diffY, -cat.speed, cat.speed);
+        if (canMoveTo(cat.x, cat.y + stepY, cat.size)) {
+          cat.y += stepY;
+          moved = true;
+        }
+      }
+
+      // Si llega al waypoint o choca contra un muro de la ruta fija, pasa al siguiente punto
+      if (dist(cat.x, cat.y, wp.x, wp.y) < 2 || !moved) {
         cat.wpIndex = (cat.wpIndex + 1) % cat.waypoints.length;
       }
-    }
-
-    // Movimiento ortogonal del gato
-    let diffX = targetX - cat.x;
-    let diffY = targetY - cat.y;
-    let stepX = 0, stepY = 0;
-
-    if (abs(diffX) > abs(diffY)) {
-      stepX = diffX > 0 ? cat.speed : -cat.speed;
-      if (!canMoveTo(cat.x + stepX, cat.y, cat.size)) {
-        stepX = 0;
-        stepY = diffY > 0 ? cat.speed : -cat.speed;
-      }
     } else {
-      stepY = diffY > 0 ? cat.speed : -cat.speed;
-      if (!canMoveTo(cat.x, cat.y + stepY, cat.size)) {
+      let diffX = player.x - cat.x;
+      let diffY = player.y - cat.y;
+      let stepX = 0,
         stepY = 0;
+
+      if (abs(diffX) > abs(diffY)) {
         stepX = diffX > 0 ? cat.speed : -cat.speed;
+        if (!canMoveTo(cat.x + stepX, cat.y, cat.size)) {
+          stepX = 0;
+          stepY = diffY > 0 ? cat.speed : -cat.speed;
+        }
+      } else {
+        stepY = diffY > 0 ? cat.speed : -cat.speed;
+        if (!canMoveTo(cat.x, cat.y + stepY, cat.size)) {
+          stepY = 0;
+          stepX = diffX > 0 ? cat.speed : -cat.speed;
+        }
       }
+
+      if (canMoveTo(cat.x + stepX, cat.y + stepY, cat.size)) {
+        cat.x += stepX;
+        cat.y += stepY;
+      }
+      if (stepX !== 0) cat.facingRight = stepX < 0;
     }
 
-    if (canMoveTo(cat.x + stepX, cat.y + stepY, cat.size)) {
-      cat.x += stepX;
-      cat.y += stepY;
-    }
-    if (stepX !== 0) cat.facingRight = stepX < 0;
-
-    // Gato trampero deja ratoneras temporales
     if (cat.mode === "trapper") {
       cat.trapCooldown--;
       if (cat.trapCooldown <= 0 && traps.length < 5) {
@@ -470,8 +534,20 @@ function updateGame() {
       }
     }
 
-    // Colisión Gato - Ratón
-    if (rectOverlap(player.x, player.y, player.size, player.size, cat.x, cat.y, cat.size, cat.size)) {
+    // Hitbox ajustada (padding de 4px para evitar colisiones falsas por bordes transparentes)
+    let hitPad = 4;
+    if (
+      rectOverlap(
+        player.x + 2,
+        player.y + 2,
+        player.size - 4,
+        player.size - 4,
+        cat.x + hitPad,
+        cat.y + hitPad,
+        cat.size - hitPad * 2,
+        cat.size - hitPad * 2
+      )
+    ) {
       if (player.superTimer > 0) {
         cat.deadTimer = 240;
         score += 100;
@@ -483,7 +559,6 @@ function updateGame() {
     }
   }
 
-  // Verificar nivel completado
   if (cheeses.length === 0) {
     playSfx(500, 1000, 0.2);
     if (currentLevel < MAX_LEVEL) {
@@ -521,7 +596,6 @@ function saveHighScore() {
 }
 
 function drawGame() {
-  // Barra Superior HUD
   fill("#111b2b");
   stroke("#00ffcc55");
   rect(0, 0, width, HUD_H);
@@ -544,32 +618,27 @@ function drawGame() {
 
   drawCanvasButton("PAUSA [P]", width - 85, 7, 75, 26);
 
-  // Dibujar Laberinto
-  fill("#162836");
+  fill(22, 40, 54, 215);
   stroke("#00ffcc");
   strokeWeight(1);
   for (let w of walls) {
     rect(w.x, w.y, w.w, w.h);
   }
 
-  // Dibujar Ratoneras
   for (let t of traps) {
     drawTrapSprite(t.x, t.y, t.size, t.ttl, t.maxTtl);
   }
 
-  // Dibujar Quesos
   for (let c of cheeses) {
     drawCheeseSprite(c.x, c.y, c.size, c.type);
   }
 
-  // Dibujar Gatos
   for (let cat of cats) {
     if (cat.deadTimer <= 0) {
       drawCatSprite(cat.x, cat.y, cat.size, true, cat.facingRight, cat.mode);
     }
   }
 
-  // Dibujar Ratón
   if (player.invulnTimer % 6 < 4) {
     drawMouseSprite(
       player.x,
@@ -620,7 +689,6 @@ function drawEndScreen() {
   drawCanvasButton("2. MENÚ PRINCIPAL", width / 2 - 115, 265, 230, 38);
 }
 
-// Utilidad de Botones en Canvas
 function drawCanvasButton(label, x, y, w, h) {
   let hover = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
   stroke("#00ffcc");
