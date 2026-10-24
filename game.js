@@ -136,9 +136,9 @@ function drawMenu() {
 
   fill("#ffcc00");
   textSize(13);
-  text("HIGH SCORE: " + highScore, width / 2, 80);
+  text("PUNTAJE MÁXIMO: " + highScore, width / 2, 80);
 
-  drawCanvasButton("1. JUGAR (PLAY)", width / 2 - 110, 105, 220, 34);
+  drawCanvasButton("1. JUGAR", width / 2 - 110, 105, 220, 34);
   drawCanvasButton("2. SELECCIÓN DE NIVEL", width / 2 - 110, 150, 220, 34);
   drawCanvasButton("3. CONTROLES", width / 2 - 110, 195, 220, 34);
   drawCanvasButton("4. CRÉDITOS / INTRO", width / 2 - 110, 240, 220, 34);
@@ -686,7 +686,7 @@ function drawPause() {
   textSize(22);
   text("JUEGO EN PAUSA", width / 2, 110);
 
-  drawCanvasButton("1. REANUDAR (RETURN)", width / 2 - 115, 165, 230, 38);
+  drawCanvasButton("1. REANUDAR", width / 2 - 115, 165, 230, 38);
   drawCanvasButton("2. MENÚ PRINCIPAL", width / 2 - 115, 220, 230, 38);
 }
 
@@ -702,14 +702,14 @@ function drawEndScreen() {
   } else {
     fill("#ff0055");
     textSize(24);
-    text("GAME OVER", width / 2, 75);
+    text("FIN DEL JUEGO", width / 2, 75);
   }
 
   fill("#ffffff");
   textSize(15);
   text("PUNTAJE OBTENIDO: " + score, width / 2, 130);
   fill("#ffcc00");
-  text("PUNTAJE MÁXIMO (HIGH SCORE): " + highScore, width / 2, 160);
+  text("PUNTAJE MÁXIMO: " + highScore, width / 2, 160);
 
   drawCanvasButton("1. VOLVER A JUGAR", width / 2 - 115, 210, 230, 38);
   drawCanvasButton("2. MENÚ PRINCIPAL", width / 2 - 115, 265, 230, 38);

@@ -38,6 +38,40 @@
         box-shadow: 0 0 20px rgba(0, 255, 204, 0.15);
         background: var(--panel-bg);
         text-align: center;
+        box-sizing: border-box;
+      }
+
+      .terminal-box:fullscreen,
+      .terminal-box:-webkit-full-screen,
+      .terminal-box:-moz-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        border: none !important;
+        background: #0b0f19 !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px !important;
+        box-shadow: none !important;
+      }
+
+      .terminal-box:fullscreen .header-bar,
+      .terminal-box:-webkit-full-screen .header-bar,
+      .terminal-box:-moz-full-screen .header-bar {
+        width: 100%;
+        max-width: 580px;
+        margin-bottom: 5px;
+      }
+
+      .terminal-box:fullscreen #game-container canvas,
+      .terminal-box:-webkit-full-screen #game-container canvas,
+      .terminal-box:-moz-full-screen #game-container canvas {
+        width: auto !important;
+        height: 82vh !important;
+        max-width: 100vw !important;
+        object-fit: contain;
       }
 
       .header-bar {
@@ -130,12 +164,12 @@
     </style>
   </head>
   <body>
-    <div class="terminal-box">
+    <div class="terminal-box" id="terminal-box">
       <div class="header-bar">
         <h1>CIBERQUESO // UNAHUR 2026</h1>
         <div class="header-buttons">
-          <button class="btn-action" onclick="toggleFullScreen()">FULLSCREEN</button>
-          <button class="btn-action" id="btn-sound" onclick="toggleAudio()">AUDIO: ON</button>
+          <button class="btn-action" onclick="toggleFullScreen()">PANTALLA COMPLETA</button>
+          <button class="btn-action" id="btn-sound" onclick="toggleAudio()">AUDIO: ACTIVADO</button>
           <button class="btn-action" onclick="toggleModal(true)">MANUAL</button>
         </div>
       </div>
@@ -164,8 +198,24 @@
       let soundMuted = false;
 
       function toggleFullScreen() {
-        let fs = fullscreen();
-        fullscreen(!fs);
+        let box = document.getElementById("terminal-box");
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.mozFullScreenElement) {
+          if (box.requestFullscreen) {
+            box.requestFullscreen();
+          } else if (box.webkitRequestFullscreen) {
+            box.webkitRequestFullscreen();
+          } else if (box.mozRequestFullScreen) {
+            box.mozRequestFullScreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          }
+        }
       }
 
       function toggleModal(show) {
@@ -175,7 +225,7 @@
       function toggleAudio() {
         soundMuted = !soundMuted;
         const btn = document.getElementById("btn-sound");
-        btn.innerText = soundMuted ? "AUDIO: OFF" : "AUDIO: ON";
+        btn.innerText = soundMuted ? "AUDIO: DESACTIVADO" : "AUDIO: ACTIVADO";
         if (typeof soundCat !== "undefined" && soundCat) {
           soundCat.muted = soundMuted;
         }
