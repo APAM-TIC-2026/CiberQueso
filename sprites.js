@@ -1,123 +1,130 @@
-let imgClosed, imgOpen;
+let imgClosed, imgOpen, soundCat;
 
-// preload() carga los archivos de imagen antes de iniciar el juego
 function preload() {
-    imgClosed = loadImage(BOCA_CERRADA_B64);
-    imgOpen   = loadImage(BOCA_ABIERTA_B64);
-    soundCat = new Audio(MAULLIDO_B64);
+  imgClosed = loadImage(BOCA_CERRADA_B64);
+  imgOpen = loadImage(BOCA_ABIERTA_B64);
+  soundCat = new Audio(MAULLIDO_B64);
 }
 
-// Dibujar al Pop Cat usando las imágenes de assets con animación de boca
-function drawCatPixel(x, y, isMoving, facingRight) {
-    push();
-    translate(x, y);
-    
-    let w = 60; // Ancho de la imagen en pantalla
-    let h = 60; // Alto de la imagen en pantalla
+// Dibujar Gato Enemigo (basado en assets originales ajustado al laberinto)
+function drawCatSprite(x, y, size, isMoving, facingRight, mode) {
+  push();
+  translate(x, y);
 
-    // Soporte para espejar la imagen si camina hacia el otro lado
-    if (facingRight) {
-        scale(-1, 1);
-        translate(-w, 0);
-    }
+  if (facingRight) {
+    scale(-1, 1);
+    translate(-size, 0);
+  }
 
-    // Elegir qué imagen mostrar según si se está moviendo
-    let currentImg = imgClosed;
-    if (isMoving) {
-        if (floor(frameCount / 6) % 2 === 0) {
-            currentImg = imgOpen;
-        } else {
-            currentImg = imgClosed;
-        }
-    }
+  // Tinte según el comportamiento del gato
+  if (mode === "chase") tint(255, 120, 120);
+  else if (mode === "trapper") tint(220, 120, 255);
+  else noTint();
 
-    // Dibujar la imagen en el canvas
-    image(currentImg, 0, 0, w, h);
-    pop();
+  let currentImg = imgClosed;
+  if (isMoving && floor(frameCount / 6) % 2 === 0) {
+    currentImg = imgOpen;
+  }
+
+  image(currentImg, 0, 0, size, size);
+  noTint();
+  pop();
 }
 
-// Matriz y funciones para el Puntero Láser (por código)
-const SPRITE_LASER = [
-    [0,0,3,3,3,3,0,0],
-    [0,3,1,1,1,1,3,0],
-    [3,1,1,2,2,1,1,3],
-    [3,1,2,2,2,2,1,3],
-    [3,1,2,2,2,2,1,3],
-    [3,1,1,2,2,1,1,3],
-    [0,3,1,1,1,1,3,0],
-    [0,0,3,3,3,3,0,0]
-];
+// Dibujar Ciber-Ratón (Jugador)
+function drawMouseSprite(x, y, size, dir, superActive, speedActive) {
+  push();
+  translate(x + size / 2, y + size / 2);
 
-function drawPixel(x, y, colorCode) {
-    fill(colorCode);
+  if (dir === "RIGHT") rotate(0);
+  else if (dir === "LEFT") rotate(PI);
+  else if (dir === "UP") rotate(-HALF_PI);
+  else if (dir === "DOWN") rotate(HALF_PI);
+
+  if (superActive) {
+    fill(0, 255, 204, 70 + sin(frameCount * 0.4) * 50);
     noStroke();
-    rect(x * 3, y * 3, 3, 3);
-}
-
-// Dibuja el láser con rayo proyectado, destellos y auras de luz
-function drawLaserPixel(x, y) {
-    push();
-
-    // 1. ORIGEN DEL LÁSER (Esquina superior derecha fuera de la pantalla)
-    let originX = width + 20;
-    let originY = -20;
-    
-    // Centro del impacto del láser
-    let targetX = x + 12;
-    let targetY = y + 12;
-
-    // 2. RAYO / HAZ LUMINOSO PROYECTADO
-    // Variación sutil de intensidad para simular el parpadeo del diodo
-    let beamAlpha = map(sin(frameCount * 0.3), -1, 1, 70, 110);
-    
-    // Resplandor exterior del rayo (ancho y translúcido)
-    stroke(255, 0, 85, beamAlpha * 0.4);
-    strokeWeight(6);
-    line(originX, originY, targetX, targetY);
-
-    // Núcleo del rayo (fino y brillante)
-    stroke(255, 200, 220, beamAlpha);
-    strokeWeight(2);
-    line(originX, originY, targetX, targetY);
-
-    // 3. EFECTO DE IMPACTO EN EL SUELO (PUNTO Y AURAS)
-    translate(x, y);
-
-    // Aura exterior pulsante (Glow neón)
-    let pulseSize = 26 + sin(frameCount * 0.2) * 6;
+    ellipse(0, 0, size * 1.4, size * 1.4);
+  } else if (speedActive) {
+    fill(255, 180, 0, 60);
     noStroke();
-    fill(255, 0, 85, 40);
-    ellipse(12, 12, pulseSize * 1.5, pulseSize * 1.5);
+    ellipse(0, 0, size * 1.25, size * 1.25);
+  }
 
-    fill(255, 0, 85, 90);
-    ellipse(12, 12, pulseSize, pulseSize);
+  // Cola
+  stroke("#ff66aa");
+  strokeWeight(2);
+  noFill();
+  line(-size * 0.35, 0, -size * 0.6, sin(frameCount * 0.3) * 3);
 
-    // Renderizado del punto píxel art central
-    for (let row = 0; row < SPRITE_LASER.length; row++) {
-        for (let col = 0; col < SPRITE_LASER[row].length; col++) {
-            let val = SPRITE_LASER[row][col];
-            if (val === 1) drawPixel(col, row, '#ff0055');
-            if (val === 2) drawPixel(col, row, '#ffffff'); // Centro blanco encandilante
-            if (val === 3) drawPixel(col, row, '#ff66aa');
-        }
-    }
+  // Cuerpo
+  noStroke();
+  fill(superActive ? "#00ffcc" : "#b0bec5");
+  ellipse(0, 0, size * 0.75, size * 0.55);
 
-    // 4. MICRO-PARTÍCULAS DE DESTELLO (Chispas alrededor del punto)
-    for (let i = 0; i < 3; i++) {
-        let angle = (frameCount * 0.1) + (i * TWO_PI / 3);
-        let px = 12 + cos(angle) * 14;
-        let py = 12 + sin(angle) * 14;
-        fill(255, 150, 200, 180);
-        rect(px, py, 2, 2);
-    }
+  // Orejas
+  fill("#78909c");
+  ellipse(-2, -size * 0.25, size * 0.28, size * 0.28);
+  ellipse(-2, size * 0.25, size * 0.28, size * 0.28);
 
-    pop();
+  // Ojos y nariz
+  fill("#ff0055");
+  ellipse(size * 0.35, 0, 4, 4);
+  fill("#00ffcc");
+  rect(2, -4, 3, 2);
+  rect(2, 2, 3, 2);
+
+  pop();
 }
 
-// Fondo Grid Cyberpunk
+// Dibujar Quesos (Normal, Móvil Power-up, Superqueso)
+function drawCheeseSprite(x, y, size, type) {
+  push();
+  translate(x, y);
+  noStroke();
+
+  if (type === "super") {
+    let pulse = 4 + sin(frameCount * 0.25) * 3;
+    fill(0, 255, 204, 60);
+    ellipse(size / 2, size / 2, size + pulse, size + pulse);
+    fill(frameCount % 10 < 5 ? "#00ffcc" : "#ffffaa");
+  } else if (type === "mobile") {
+    fill("#ff9900");
+  } else {
+    fill("#ffd700");
+  }
+
+  triangle(2, size - 2, size / 2, 2, size - 2, size - 2);
+
+  fill("#b8860b");
+  ellipse(size * 0.45, size * 0.65, 3, 3);
+  ellipse(size * 0.6, size * 0.8, 2.5, 2.5);
+  pop();
+}
+
+// Dibujar Ratonera (Trampa con duración limitada)
+function drawTrapSprite(x, y, size, ttl, maxTtl) {
+  push();
+  translate(x, y);
+  let alpha = map(ttl, 0, maxTtl, 60, 255);
+
+  stroke(255, 50, 50, alpha);
+  strokeWeight(1.5);
+  fill(90, 40, 20, alpha);
+  rect(2, 4, size - 4, size - 8, 2);
+
+  stroke(200, 200, 200, alpha);
+  line(size / 2, 4, size / 2, size - 4);
+
+  noStroke();
+  fill(255, 0, 60, alpha);
+  ellipse(size / 2, size / 2, 5, 5);
+  pop();
+}
+
 function drawBackgroundGrid() {
-    stroke(0, 255, 204, 15);
-    strokeWeight(1);
-    for (let x = 0; x < width; x += 16) line(x, 0, x, height);
-    for (let y = 0; y < height; y += 16) line(0, y, width, y);
+  stroke(0, 255, 204, 15);
+  strokeWeight(1);
+  for (let x = 0; x < width; x += 20) line(x, 0, x, height);
+  for (let y = 40; y < height; y += 20) line(0, y, width, y);
 }
