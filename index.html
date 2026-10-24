@@ -51,12 +51,13 @@
 
       .header-buttons {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.4rem;
         align-items: center;
+        flex-wrap: wrap;
       }
 
       h1 {
-        font-size: 1.1rem;
+        font-size: 1rem;
         text-transform: uppercase;
         letter-spacing: 2px;
         margin: 0;
@@ -72,9 +73,9 @@
         background: var(--btn-bg);
         color: var(--text-color);
         border: 1px solid var(--text-color);
-        padding: 0.35rem 0.7rem;
+        padding: 0.3rem 0.6rem;
         font-family: inherit;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         cursor: pointer;
         text-transform: uppercase;
         font-weight: bold;
@@ -133,8 +134,9 @@
       <div class="header-bar">
         <h1>CIBERQUESO // UNAHUR 2026</h1>
         <div class="header-buttons">
-          <button class="btn-action" id="btn-sound" onclick="toggleAudio()">Audio: ON</button>
-          <button class="btn-action" onclick="toggleModal(true)">Manual</button>
+          <button class="btn-action" onclick="toggleFullScreen()">FULLSCREEN</button>
+          <button class="btn-action" id="btn-sound" onclick="toggleAudio()">AUDIO: ON</button>
+          <button class="btn-action" onclick="toggleModal(true)">MANUAL</button>
         </div>
       </div>
       <div id="game-container"></div>
@@ -148,9 +150,9 @@
           <li><strong>Movimiento (Ortogonal):</strong> Flechas o WASD (solo horizontal o vertical, sin diagonales).</li>
           <li><strong>Pausa:</strong> Tecla <code>P</code> o <code>ESC</code>.</li>
           <li><strong>Queso Estático:</strong> +10 pts.</li>
-          <li><strong>Queso Móvil (Naranja):</strong> +25 pts y otorga aumento de velocidad temporal.</li>
-          <li><strong>Superqueso (Cian pulsante):</strong> +50 pts. Otorga invulnerabilidad temporal y permite eliminar gatos al tocarlos (+100 pts).</li>
-          <li><strong>Gatos y Ratoneras:</strong> Tocarte con un gato o pisar una ratonera activa resta 1 vida.</li>
+          <li><strong>Queso Móvil (Naranja):</strong> +25 pts y velocidad extra.</li>
+          <li><strong>Superqueso (Cian pulsante):</strong> +50 pts. Invulnerabilidad temporal y permite eliminar gatos al tocarlos (+100 pts).</li>
+          <li><strong>Gatos y Ratoneras:</strong> Tocarte con un gato o pisar una ratonera resta 1 vida.</li>
         </ul>
         <div class="modal-footer">
           <button class="btn-action" onclick="toggleModal(false)">Cerrar</button>
@@ -161,6 +163,11 @@
     <script>
       let soundMuted = false;
 
+      function toggleFullScreen() {
+        let fs = fullscreen();
+        fullscreen(!fs);
+      }
+
       function toggleModal(show) {
         document.getElementById("instructions-modal").style.display = show ? "flex" : "none";
       }
@@ -168,7 +175,7 @@
       function toggleAudio() {
         soundMuted = !soundMuted;
         const btn = document.getElementById("btn-sound");
-        btn.innerText = soundMuted ? "Audio: OFF" : "Audio: ON";
+        btn.innerText = soundMuted ? "AUDIO: OFF" : "AUDIO: ON";
         if (typeof soundCat !== "undefined" && soundCat) {
           soundCat.muted = soundMuted;
         }

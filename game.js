@@ -1,4 +1,4 @@
-// Estados: INTRO, MENU, CONTROLS, DIFFICULTY, PLAY, PAUSE, GAMEOVER, VICTORY
+// Estados: INTRO, MENU, CONTROLS, DIFFICULTY, LEVELSELECT, PLAY, PAUSE, GAMEOVER, VICTORY
 let gameState = "INTRO";
 let introTimer = 0;
 
@@ -75,6 +75,9 @@ function draw() {
   } else if (gameState === "DIFFICULTY") {
     drawIntroBackground();
     drawDifficulty();
+  } else if (gameState === "LEVELSELECT") {
+    drawIntroBackground();
+    drawLevelSelect();
   } else if (gameState === "PLAY") {
     drawGameBackground();
     updateGame();
@@ -129,15 +132,16 @@ function drawMenu() {
   noStroke();
   fill("#00ffcc");
   textSize(26);
-  text("CIBERQUESO", width / 2, 65);
+  text("CIBERQUESO", width / 2, 45);
 
   fill("#ffcc00");
-  textSize(14);
-  text("HIGH SCORE: " + highScore, width / 2, 105);
+  textSize(13);
+  text("HIGH SCORE: " + highScore, width / 2, 80);
 
-  drawCanvasButton("1. JUGAR (PLAY)", width / 2 - 110, 145, 220, 36);
-  drawCanvasButton("2. CONTROLES", width / 2 - 110, 195, 220, 36);
-  drawCanvasButton("3. CRÉDITOS / INTRO", width / 2 - 110, 245, 220, 36);
+  drawCanvasButton("1. JUGAR (PLAY)", width / 2 - 110, 105, 220, 34);
+  drawCanvasButton("2. SELECCIÓN DE NIVEL", width / 2 - 110, 150, 220, 34);
+  drawCanvasButton("3. CONTROLES", width / 2 - 110, 195, 220, 34);
+  drawCanvasButton("4. CRÉDITOS / INTRO", width / 2 - 110, 240, 220, 34);
 }
 
 function drawControls() {
@@ -158,25 +162,55 @@ function drawControls() {
     "- RATONERAS: Dejadas por gatos tramperos (-1 vida)."
   ];
   for (let i = 0; i < lines.length; i++) {
-    text(lines[i], 55, 85 + i * 26);
+    text(lines[i], 35, 85 + i * 26);
   }
 
-  drawCanvasButton("VOLVER AL MENÚ [ESC]", width / 2 - 110, 285, 220, 36);
+  drawCanvasButton("VOLVER AL MENÚ [ESC]", width / 2 - 110, 295, 220, 34);
 }
 
 function drawDifficulty() {
   textAlign(CENTER, CENTER);
   fill("#00ffcc");
   textSize(20);
-  text("SELECCIONAR DIFICULTAD", width / 2, 70);
+  text("SELECCIONAR DIFICULTAD", width / 2, 60);
 
-  drawCanvasButton("1. FÁCIL (3 VIDAS)", width / 2 - 120, 125, 240, 38);
-  drawCanvasButton("2. NORMAL (2 VIDAS)", width / 2 - 120, 180, 240, 38);
-  drawCanvasButton("3. DIFÍCIL (1 VIDA)", width / 2 - 120, 235, 240, 38);
-  drawCanvasButton("VOLVER", width / 2 - 70, 295, 140, 30);
+  drawCanvasButton("1. FÁCIL (3 VIDAS)", width / 2 - 120, 115, 240, 38);
+  drawCanvasButton("2. NORMAL (2 VIDAS)", width / 2 - 120, 170, 240, 38);
+  drawCanvasButton("3. DIFÍCIL (1 VIDA)", width / 2 - 120, 225, 240, 38);
+  drawCanvasButton("VOLVER", width / 2 - 70, 290, 140, 32);
 }
 
-// 3. JUEGO Y NIVELES
+// PANTALLA DE SELECCIÓN DE NIVEL
+function drawLevelSelect() {
+  textAlign(CENTER, CENTER);
+  fill("#00ffcc");
+  textSize(18);
+  text("SELECCIONAR NIVEL (1-8)", width / 2, 40);
+
+  let btnW = 110;
+  let btnH = 34;
+  let startX = width / 2 - 120;
+  let startY = 85;
+
+  for (let i = 1; i <= MAX_LEVEL; i++) {
+    let col = (i - 1) % 2;
+    let row = floor((i - 1) / 2);
+    let bx = startX + col * 135;
+    let by = startY + row * 46;
+    drawCanvasButton("NIVEL " + i, bx, by, btnW, btnH);
+  }
+
+  drawCanvasButton("VOLVER", width / 2 - 70, 305, 140, 30);
+}
+
+function startLevelGame(lvl) {
+  currentLevel = lvl;
+  lives = currentDifficulty === "FACIL" ? 3 : currentDifficulty === "NORMAL" ? 2 : 1;
+  score = 0;
+  setupLevel(currentLevel);
+  gameState = "PLAY";
+}
+
 function startGame(diff) {
   currentDifficulty = diff;
   lives = diff === "FACIL" ? 3 : diff === "NORMAL" ? 2 : 1;
@@ -206,7 +240,6 @@ function setupLevel(lvl) {
   traps = [];
   resetPlayerPos();
 
-  // Muros según nivel
   if (lvl === 2) {
     walls.push({ x: 180, y: HUD_H + 60, w: 200, h: 16 });
     walls.push({ x: 180, y: HUD_H + 240, w: 200, h: 16 });
@@ -237,7 +270,6 @@ function setupLevel(lvl) {
   for (let i = 0; i < mobileCount; i++) spawnCheese("mobile");
   for (let i = 0; i < superCount; i++) spawnCheese("super");
 
-  // Rutas fijas despejadas de muros y movimiento ortogonal exacto
   if (lvl === 3 || lvl === 4) {
     cats.push(
       createCat(
@@ -382,7 +414,6 @@ function updateGame() {
   if (player.speedTimer > 0) player.speedTimer--;
   if (player.invulnTimer > 0) player.invulnTimer--;
 
-  // Movimiento ortogonal del jugador
   let currentSpeed = player.baseSpeed + (player.speedTimer > 0 ? 1.2 : 0);
   let dx = 0,
     dy = 0;
@@ -407,7 +438,6 @@ function updateGame() {
     player.y += dy;
   }
 
-  // Actualizar Quesos Móviles
   for (let i = cheeses.length - 1; i >= 0; i--) {
     let c = cheeses[i];
     if (c.type === "mobile") {
@@ -444,7 +474,6 @@ function updateGame() {
     }
   }
 
-  // Actualizar Ratoneras
   for (let i = traps.length - 1; i >= 0; i--) {
     traps[i].ttl--;
     if (traps[i].ttl <= 0) {
@@ -462,7 +491,6 @@ function updateGame() {
     }
   }
 
-  // Actualizar Gatos con verificación de colisión en rutas fijas y persecución
   for (let cat of cats) {
     if (cat.deadTimer > 0) {
       cat.deadTimer--;
@@ -495,7 +523,6 @@ function updateGame() {
         }
       }
 
-      // Si llega al waypoint o choca contra un muro de la ruta fija, pasa al siguiente punto
       if (dist(cat.x, cat.y, wp.x, wp.y) < 2 || !moved) {
         cat.wpIndex = (cat.wpIndex + 1) % cat.waypoints.length;
       }
@@ -534,7 +561,6 @@ function updateGame() {
       }
     }
 
-    // Hitbox ajustada (padding de 4px para evitar colisiones falsas por bordes transparentes)
     let hitPad = 4;
     if (
       rectOverlap(
@@ -605,15 +631,15 @@ function drawGame() {
   textAlign(LEFT, CENTER);
   textSize(13);
   text("NIVEL: " + currentLevel + "/" + MAX_LEVEL, 12, HUD_H / 2);
-  text("PUNTAJE: " + score, 125, HUD_H / 2);
-  text("VIDAS: " + "❤".repeat(max(0, lives)), 270, HUD_H / 2);
+  text("PUNTAJE: " + score, 115, HUD_H / 2);
+  text("VIDAS: " + "❤".repeat(max(0, lives)), 260, HUD_H / 2);
 
   if (player.superTimer > 0) {
     fill("#00ffcc");
-    text("SUPER: " + ceil(player.superTimer / 60) + "s", 385, HUD_H / 2);
+    text("SUPER: " + ceil(player.superTimer / 60) + "s", 380, HUD_H / 2);
   } else if (player.speedTimer > 0) {
     fill("#ff9900");
-    text("VELOZ: " + ceil(player.speedTimer / 60) + "s", 385, HUD_H / 2);
+    text("VELOZ: " + ceil(player.speedTimer / 60) + "s", 380, HUD_H / 2);
   }
 
   drawCanvasButton("PAUSA [P]", width - 85, 7, 75, 26);
@@ -715,19 +741,39 @@ function mousePressed() {
   if (gameState === "INTRO") {
     gameState = "MENU";
   } else if (gameState === "MENU") {
-    if (insideButton(width / 2 - 110, 145, 220, 36)) gameState = "DIFFICULTY";
-    else if (insideButton(width / 2 - 110, 195, 220, 36)) gameState = "CONTROLS";
-    else if (insideButton(width / 2 - 110, 245, 220, 36)) {
+    if (insideButton(width / 2 - 110, 105, 220, 34)) gameState = "DIFFICULTY";
+    else if (insideButton(width / 2 - 110, 150, 220, 34)) gameState = "LEVELSELECT";
+    else if (insideButton(width / 2 - 110, 195, 220, 34)) gameState = "CONTROLS";
+    else if (insideButton(width / 2 - 110, 240, 220, 34)) {
       introTimer = 0;
       gameState = "INTRO";
     }
   } else if (gameState === "CONTROLS") {
-    if (insideButton(width / 2 - 110, 285, 220, 36)) gameState = "MENU";
+    if (insideButton(width / 2 - 110, 295, 220, 34)) gameState = "MENU";
   } else if (gameState === "DIFFICULTY") {
-    if (insideButton(width / 2 - 120, 125, 240, 38)) startGame("FACIL");
-    else if (insideButton(width / 2 - 120, 180, 240, 38)) startGame("NORMAL");
-    else if (insideButton(width / 2 - 120, 235, 240, 38)) startGame("DIFICIL");
-    else if (insideButton(width / 2 - 70, 295, 140, 30)) gameState = "MENU";
+    if (insideButton(width / 2 - 120, 115, 240, 38)) startGame("FACIL");
+    else if (insideButton(width / 2 - 120, 170, 240, 38)) startGame("NORMAL");
+    else if (insideButton(width / 2 - 120, 225, 240, 38)) startGame("DIFICIL");
+    else if (insideButton(width / 2 - 70, 290, 140, 30)) gameState = "MENU";
+  } else if (gameState === "LEVELSELECT") {
+    let btnW = 110, btnH = 34;
+    let startX = width / 2 - 120;
+    let startY = 85;
+    let selected = false;
+    for (let i = 1; i <= MAX_LEVEL; i++) {
+      let col = (i - 1) % 2;
+      let row = floor((i - 1) / 2);
+      let bx = startX + col * 135;
+      let by = startY + row * 46;
+      if (insideButton(bx, by, btnW, btnH)) {
+        startLevelGame(i);
+        selected = true;
+        break;
+      }
+    }
+    if (!selected && insideButton(width / 2 - 70, 305, 140, 30)) {
+      gameState = "MENU";
+    }
   } else if (gameState === "PLAY") {
     if (insideButton(width - 85, 7, 75, 26)) gameState = "PAUSE";
   } else if (gameState === "PAUSE") {
@@ -744,8 +790,9 @@ function keyPressed() {
     gameState = "MENU";
   } else if (gameState === "MENU") {
     if (key === "1") gameState = "DIFFICULTY";
-    if (key === "2") gameState = "CONTROLS";
-    if (key === "3") {
+    if (key === "2") gameState = "LEVELSELECT";
+    if (key === "3") gameState = "CONTROLS";
+    if (key === "4") {
       introTimer = 0;
       gameState = "INTRO";
     }
@@ -755,6 +802,8 @@ function keyPressed() {
     if (key === "1") startGame("FACIL");
     if (key === "2") startGame("NORMAL");
     if (key === "3") startGame("DIFICIL");
+    if (keyCode === ESCAPE) gameState = "MENU";
+  } else if (gameState === "LEVELSELECT") {
     if (keyCode === ESCAPE) gameState = "MENU";
   } else if (gameState === "PLAY") {
     if (key === "p" || key === "P" || keyCode === ESCAPE) {
